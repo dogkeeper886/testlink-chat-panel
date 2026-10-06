@@ -33,7 +33,7 @@ Right-click on TestLink fills the Dify chat box with a prompt that names what yo
 
 ### Status: the route works
 
-The fork's `bridge` branch has the route from the page to the chat box, verified in Chrome: select text, right-click, choose **Send to Dify**, and the side panel's chat box holds the selection and a `Source:` line, unsent. What goes along the route, and from which menu items, is still open; see "Open: what to pass to the panel" below.
+The fork's `bridge` branch has the route from the page to the chat box, verified in Chrome: select text, right-click, choose **Send to Dify**, and the side panel's chat box holds the selection and a `Source:` line, unsent. What goes along the route is set in "Direction: pass a reference, and let the agent fetch" below; the menu items are still open.
 
 Testing changed two details of the proposal:
 
@@ -97,23 +97,37 @@ insidebar-ai lists each chat site in its manifest, such as `chatgpt.com/*`. A Di
 | The extension can run on the Dify address | It asks only for the saved ChatBot URL's address, and only when you save it |
 | A prompt runs before you see it | The extension fills the chat box and never presses Send |
 
-### Open: what to pass to the panel
+### Direction: pass a reference, and let the agent fetch
 
-The route carries any text. What to put on it is open, and it goes with the menu design: each menu item decides what it sends. Decide both together.
+The panel does not carry page text. It says where you are, and the agent reads what it needs through the TestLink tools in mcpo. The menu items, and the prompt each one fills, are still to decide.
 
-| Content | Where it comes from | Now |
-|---|---|---|
-| The selection | The right-click itself (`info.selectionText`) | Sent |
-| The page URL | The right-click itself (`info.pageUrl`) | Sent as `Source:`. On TestLink it is the outer `index.php` page, which says little |
-| The frame URL | The right-click itself (`info.frameUrl`) | Not sent. On TestLink it names the page clicked, such as the project edit form |
-| Test case ID, step, part clicked | The TestLink reader, from the `tl-classic` markers | Not built |
-| Text of the clicked part | The TestLink reader | Not built |
+Every read tool takes TestLink's own IDs:
 
-Questions for that decision:
+| Tool | Takes |
+|---|---|
+| `read_test_case` | `test_case_id`: numeric, such as `123`, or external, such as `TLMCP-12` |
+| `list_test_cases_in_suite` | `suite_id` |
+| `list_test_suites`, `list_test_plans`, `list_requirements` | `project_id` |
+| `get_test_cases_for_test_plan`, `list_builds` | `plan_id` |
+| `read_test_execution` | `plan_id`, `test_case_id`, optional `build_id` |
+| `get_requirement` | `requirement_id`, `project_id` |
 
-- Send IDs or content? The agent reads TestLink through mcpo, so an ID such as `TLMCP-12` may be enough. Content matters when the page shows what TestLink has not saved, such as an edit form.
-- Which menu items, and which prompt each one fills: for example "Review this test case" or "Improve this step".
-- Which parts belong to the generic fork and which to the TestLink reader here.
+TestLink puts these IDs in the URL of the frame you click in, such as `lib/testcases/archiveData.php?edit=testsuite&id=5`. The right-click reports that URL as `info.frameUrl`; `info.pageUrl` is the outer `index.php`, which says little. So "where you are" is the frame URL plus the selection:
+
+```
+<the selection>
+
+Page: http://<testlink-host>/lib/testcases/archiveData.php?edit=testcase&id=123
+```
+
+1. **First, a reference.** The fork sends `info.frameUrl`, falling back to `info.pageUrl`, as the `Page:` line. The agent's prompt says that the Page URL names the TestLink page, and that it reads the URL's `id` parameters and fetches what it needs with the TestLink tools. The fork stays generic, with no TestLink knowledge.
+2. **If needed, a page detector.** If the model misreads URLs, a small TestLink reader here turns the URL into a plain line, such as "TestLink test case 123 (TLMCP-12), step 3". It is a table of URL patterns, not page scraping.
+
+| Gap | What to do |
+|---|---|
+| Unsaved edits in a form are not in TestLink, so the tools cannot see them | Select the text: the selection travels with the reference |
+| The URL names the test case, not the step clicked | The selection carries the step's text; a page detector could read `tcstep_<id>` |
+| Some pages have no read tool, such as a single test suite | The agent works from the nearest tool, such as `list_test_cases_in_suite`, or testlink-mcp gains a tool |
 
 ## Later: the agent works through two channels
 
@@ -227,7 +241,7 @@ The script draws its own menu. Chrome's built-in menu (`chrome.contextMenus`) is
 ## Next
 
 1. Done, on the fork's `bridge` branch: right-click on selected text fills the Dify chat box. Merge it into the fork's `main`.
-2. Decide what to pass to the panel, together with the menu items.
+2. Send the frame URL as the `Page:` line, and add the Page URL rule to the agent's prompt. Then decide the menu items and their prompts.
 3. Add saved prompts and the generic reader to the fork.
 4. In this repository, add the TestLink reader, starting with a test case in the tree, the test case name, and a step.
 
