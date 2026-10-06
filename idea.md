@@ -31,6 +31,15 @@ The first version has one agent with read tools plus `create_test_case` and `upd
 
 Right-click on TestLink fills the Dify chat box with a prompt that names what you clicked, such as "Review step 3 of TLMCP-12". You read it and press Enter. The extension never presses Send, so nothing reaches the agent, which can write to TestLink, without your review.
 
+### Status: the route works
+
+The fork's `bridge` branch has the route from the page to the chat box, verified in Chrome: select text, right-click, choose **Send to Dify**, and the side panel's chat box holds the selection and a `Source:` line, unsent. What goes along the route, and from which menu items, is still open; see "Open: what to pass to the panel" below.
+
+Testing changed two details of the proposal:
+
+- Dify's chat box comes with a hidden textarea that `react-textarea-autosize` adds to measure text height; the bridge skips it.
+- Chrome can drop a content script registered at runtime, as when the extension reloads, so the service worker registers it again each time it starts.
+
 ### What popular side panel extensions do
 
 | Project | Chat UI | Reads the page | Gets text into the chat |
@@ -61,7 +70,7 @@ TestLink tab (all frames)            extension                          side pan
 1. On a click of **Send to Dify ▸**, the extension opens the side panel. A menu click counts as a user gesture, which `sidePanel.open` needs.
 2. It builds the text from the clicked item: the selection and page URL from the click itself, or a saved prompt with slots such as `{selection}`, `{url}`, `{tcase_id}` and `{step}`, filled by the page reader.
 3. The side panel posts the text to its Dify iframe. The content script there puts it in the chat box and fires an `input` event so Dify's React code sees it.
-4. If the chat box is not found, for example after a Dify update, the text goes to the clipboard instead.
+4. If the chat box is not found, for example after a Dify update, the panel shows the text with a **Copy text** button.
 
 A saved prompt that names a Dify agent skill, such as "Use the test case review skill on {tcase_id}", is how the menu runs a skill; the agent picks skills from the message.
 
@@ -71,7 +80,7 @@ insidebar-ai lists each chat site in its manifest, such as `chatgpt.com/*`. A Di
 
 | Need | How |
 |---|---|
-| Run the content script on the user's Dify | When the ChatBot URL is saved, ask for that address with `chrome.permissions.request`, then register the script with `chrome.scripting.registerContentScripts` |
+| Run the content script on the user's Dify | When the ChatBot URL is saved, ask for that address with `chrome.permissions.request`. The service worker registers the script with `chrome.scripting.registerContentScripts` each time it starts |
 | Find the chat box | One selector for Dify's chat box, plus the clipboard fallback |
 | Read TestLink, which uses frames | `activeTab` and `chrome.scripting.executeScript` with `allFrames: true` |
 
@@ -84,9 +93,27 @@ insidebar-ai lists each chat site in its manifest, such as `chatgpt.com/*`. A Di
 
 | Risk | Mitigation |
 |---|---|
-| A Dify update changes the chat box | One selector to update, and the clipboard fallback |
+| A Dify update changes the chat box | One selector to update, and the **Copy text** fallback |
 | The extension can run on the Dify address | It asks only for the saved ChatBot URL's address, and only when you save it |
 | A prompt runs before you see it | The extension fills the chat box and never presses Send |
+
+### Open: what to pass to the panel
+
+The route carries any text. What to put on it is open, and it goes with the menu design: each menu item decides what it sends. Decide both together.
+
+| Content | Where it comes from | Now |
+|---|---|---|
+| The selection | The right-click itself (`info.selectionText`) | Sent |
+| The page URL | The right-click itself (`info.pageUrl`) | Sent as `Source:`. On TestLink it is the outer `index.php` page, which says little |
+| The frame URL | The right-click itself (`info.frameUrl`) | Not sent. On TestLink it names the page clicked, such as the project edit form |
+| Test case ID, step, part clicked | The TestLink reader, from the `tl-classic` markers | Not built |
+| Text of the clicked part | The TestLink reader | Not built |
+
+Questions for that decision:
+
+- Send IDs or content? The agent reads TestLink through mcpo, so an ID such as `TLMCP-12` may be enough. Content matters when the page shows what TestLink has not saved, such as an edit form.
+- Which menu items, and which prompt each one fills: for example "Review this test case" or "Improve this step".
+- Which parts belong to the generic fork and which to the TestLink reader here.
 
 ## Later: the agent works through two channels
 
@@ -199,9 +226,10 @@ The script draws its own menu. Chrome's built-in menu (`chrome.contextMenus`) is
 
 ## Next
 
-1. In the fork, build the bridge: right-click on selected text fills the Dify chat box, through a content script registered for the saved ChatBot URL.
-2. Add saved prompts and the generic reader to the fork.
-3. In this repository, add the TestLink reader, starting with a test case in the tree, the test case name, and a step.
+1. Done, on the fork's `bridge` branch: right-click on selected text fills the Dify chat box. Merge it into the fork's `main`.
+2. Decide what to pass to the panel, together with the menu items.
+3. Add saved prompts and the generic reader to the fork.
+4. In this repository, add the TestLink reader, starting with a test case in the tree, the test case name, and a step.
 
 ---
 
