@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="330" viewBox="0 0 900 330"><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs><style>text{font-family:DejaVu Sans,Arial,sans-serif;fill:#0f172a}.m{font-size:14px}.t{font-size:17px;font-weight:bold}.l{font-size:12px;fill:#475569}.ln{stroke:#334155;stroke-width:1.6;fill:none}</style>
+<rect width="900" height="330" fill="#ffffff"/>
+<text x="30" y="34" class="t">First</text>
+<rect x="30" y="50" width="340" height="250" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.8"/>
+<text x="50" y="82" class="t">Chrome</text>
+<text x="50" y="112" class="m">Manifest V3 extension</text>
+<text x="50" y="142" class="m">chrome.contextMenus</text>
+<text x="50" y="168" class="m">chrome.sidePanel</text>
+<text x="50" y="194" class="m">fetch to the Dify API</text>
+<text x="50" y="230" class="l">host_permissions for</text>
+<text x="50" y="250" class="l">the TestLink and Dify URLs</text>
+<text x="50" y="282" class="l">installed here: /usr/bin/google-chrome</text>
+<path d="M372,175 L458,175" class="ln" marker-end="url(#a)"/>
+<text x="460" y="34" class="t">Later</text>
+<rect x="460" y="50" width="410" height="78" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+<text x="478" y="78" class="t">Edge, Brave, Vivaldi, Opera</text>
+<text x="478" y="104" class="l">same code, no changes</text>
+<rect x="460" y="138" width="410" height="78" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+<text x="478" y="166" class="t">Firefox</text>
+<text x="478" y="188" class="l">sidebar_action instead of sidePanel</text>
+<rect x="460" y="226" width="410" height="74" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-dasharray="6 4"/>
+<text x="478" y="254" class="t" style="fill:#64748b">Safari: skip</text>
+<text x="478" y="280" class="l">needs a macOS app wrapper built with Xcode</text>
+</svg>
