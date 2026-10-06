@@ -4,7 +4,7 @@
 
 A chat panel on the right of TestLink talks to an agent built in Dify. The agent reads and writes TestLink data through testlink-mcp, which mcpo serves as a REST API. TestLink and testlink-mcp stay unchanged.
 
-The first version shows Dify's own chat in Chrome's side panel through a thin extension in [extension/](extension/), so it needs no chat code. Page context, right-click requests and an Apply button come later.
+The first version shows Dify's own chat in Chrome's side panel through [Chatbot Side Panel for Dify](https://github.com/dogkeeper886/chatbot-chrome-extension), our fork of the archived Dify Chatbot extension, so it needs no chat code. Page context, right-click requests and an Apply button come later.
 
 ![The full design: what is added and what stays unchanged](diagrams/verdict.png)
 

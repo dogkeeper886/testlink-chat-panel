@@ -125,9 +125,9 @@ Lower Temperature to 0.3 if tool arguments come out wrong.
 
 ## 5. Open the chat beside TestLink
 
-In the agent, open **Access Point** and copy the **Web App → Access URL**. Then set up the side panel extension in [../extension/](../extension/README.md), with that URL as `CHAT_URL`. Click its icon on the TestLink page; the agent's chat opens in Chrome's side panel.
+In the agent, open **Access Point** and copy the **Web App → Access URL**. Then install [Chatbot Side Panel for Dify](https://github.com/dogkeeper886/chatbot-chrome-extension), our fork of the Dify Chatbot extension: load it unpacked, click its icon, and save that URL on its settings page. On the TestLink page, click the icon; the agent's chat opens in Chrome's side panel.
 
-**Embed Into Site** offers three other ways, and none fits. The iframe and the chat bubble script need a change to TestLink's pages. The Dify Chatbot Chrome extension is archived and injects its chat into the page, where it often fails to appear.
+**Embed Into Site** offers three other ways, and none fits. The iframe and the chat bubble script need a change to TestLink's pages. The original Dify Chatbot Chrome extension is archived and injects its chat into the page, where it often fails to appear; our fork replaces that with the side panel.
 
 ![Embed options](images/5-embed-options.png)
 
