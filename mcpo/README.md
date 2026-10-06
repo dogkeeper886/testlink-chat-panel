@@ -30,4 +30,4 @@ The interactive docs are at `http://<host>:8000/testlink/docs`.
 
 ## Use in Dify
 
-Under **Tools → Custom**, import `http://<host>:8000/testlink/openapi.json` and set `MCPO_API_KEY` as a Bearer key. Re-import the schema when testlink-mcp adds or changes tools, or after changing its version in the Dockerfile.
+See [../dify/README.md](../dify/README.md).

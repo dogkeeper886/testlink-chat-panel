@@ -2,11 +2,32 @@
 
 ## Verdict: PASS
 
-A Chrome extension adds a chat panel on the right of TestLink. You type a request, and an agent built in Dify answers in the panel. The agent sees the TestLink page on the left, and it reads and writes TestLink data through testlink-mcp, which mcpo serves as a REST API. TestLink and testlink-mcp stay unchanged.
+A chat panel on the right of TestLink talks to an agent built in Dify. The agent reads and writes TestLink data through testlink-mcp, which mcpo serves as a REST API. TestLink and testlink-mcp stay unchanged.
 
-![What is added and what stays unchanged](diagrams/verdict.png)
+The first version uses Dify's own chat in the Dify Chatbot Chrome extension, so it needs no front-end code. Our own extension, which sees the TestLink page and adds right-click requests and an Apply button, comes later.
 
-## Finding: the agent works through two channels
+![The full design: what is added and what stays unchanged](diagrams/verdict.png)
+
+## Decided: start with Dify's own chat
+
+Dify's **Access Point → Embed Into Site** offers three ways in. The first two, an iframe and a chat bubble script, need a change to TestLink's pages. The third, the Dify Chatbot Chrome extension, opens the agent's chat beside any page and needs only the agent's ChatBot URL. Setup is in [dify/README.md](dify/README.md).
+
+| Feature | First version | Later, with our own extension |
+|---|---|---|
+| Chat beside TestLink, streamed answers, follow-ups | ✔ Dify's chat | ✔ |
+| Agent reads and writes TestLink through mcpo | ✔ | ✔ |
+| "Review this": the agent sees the open test case | You type the ID, such as "review TLMCP-12" | ✔ Page context |
+| Right-click request | ✗ | ✔ |
+| Apply button before a write | The agent proposes, and writes after you reply "apply" | ✔ A separate write-only workflow |
+
+The first version has one agent with read tools plus `create_test_case` and `update_test_case`, and no delete tools. Its prompt tells it to show each change and wait for "apply". This rule is a prompt, not a lock: the model can still skip it, so the later Apply workflow stays in the design.
+
+| Risk | Mitigation |
+|---|---|
+| The ChatBot URL is a public share link; anyone with it can use the agent | Share it only on the trusted network, like the TestLink stack itself |
+| The agent writes without an Apply button | No delete tools, and a prompt rule to propose first |
+
+## Later: the agent works through two channels
 
 | Channel | What it gives the agent | Used for |
 |---|---|---|
@@ -25,11 +46,11 @@ The panel is a normal web page, so it can:
 
 Its one limit is width. A long side-by-side comparison opens in a new tab.
 
-## Decided: right-click is a shortcut
+## Later: right-click is a shortcut
 
 The chat panel is the main way in. Right-click on a test case opens the panel with a request already filled in, such as "Review TC-12", so common requests take one click. Anything else is typed into the chat.
 
-## Decided: a browser extension, Chrome first
+## Later: our own browser extension, Chrome first
 
 The extension calls the Dify API over HTTP, so it needs no local program. It is preferred over a Tampermonkey script because only an extension gets a side panel.
 
@@ -47,7 +68,7 @@ Other browsers come later:
 
 The agent is built in Dify, an open-source LLM app platform, so the backend needs no agent code. The review task is simple, so a light model is enough; Dify can use the local Ollama or a hosted model.
 
-The panel talks to two Dify apps:
+With our own extension, the panel talks to two Dify apps:
 
 | App | Dify API | Tools | Role |
 |---|---|---|---|
@@ -83,13 +104,13 @@ EXPOSE 8000
 ENTRYPOINT ["sh", "-c", "exec mcpo --host 0.0.0.0 --port 8000 --api-key \"$MCPO_API_KEY\" --config /etc/mcpo/config.json"]
 ```
 
-`config.json` starts `node /opt/testlink-mcp/dist/index.js`. mcpo passes its environment to the child, so `TESTLINK_URL` and `TESTLINK_API_KEY` go in `.env` with `MCPO_API_KEY`, and `docker compose up` runs it. `TESTLINK_URL` is the TestLink base URL; testlink-mcp adds `/lib/api/xmlrpc/v1/xmlrpc.php`. In Dify, import `http://<host>:8000/testlink/openapi.json` under **Tools → Custom**, and set `MCPO_API_KEY` as a Bearer key. Each Dify app then picks only the tools it needs.
+`config.json` starts `node /opt/testlink-mcp/dist/index.js`. mcpo passes its environment to the child, so `TESTLINK_URL` and `TESTLINK_API_KEY` go in `.env` with `MCPO_API_KEY`, and `docker compose up` runs it. `TESTLINK_URL` is the TestLink base URL; testlink-mcp adds `/lib/api/xmlrpc/v1/xmlrpc.php`. In Dify, add the schema under **Integrations → Swagger API as Tool**, and set `MCPO_API_KEY` as a Bearer key; [dify/README.md](dify/README.md) has the steps. Each Dify app then picks only the tools it needs.
 
 The mcpo image is used as published because it pins `mcp` and `mcpo` versions that work together; `pip install mcpo` on its own pulled `mcp` 2.x, which mcpo 0.0.20 fails to import.
 
 When testlink-mcp adds or changes tools, re-import the schema in Dify.
 
-## Decided: a menu per item
+## Later: a menu per item
 
 The right-click menu changes with what you click. A script finds which part of the page was clicked, draws a menu for that part, and each item opens the chat panel with a precise request, such as "Review step 3 of TC-12".
 
@@ -115,7 +136,7 @@ The script draws its own menu. Chrome's built-in menu (`chrome.contextMenus`) is
 
 ## Next
 
-Choose which parts get a menu in the first version. A suggested start is a test case in the tree, the test case name, and a step.
+Try the first version on real test cases. Build our own extension when typing IDs or the missing Apply lock gets in the way; then choose which parts get a menu first. A suggested start is a test case in the tree, the test case name, and a step.
 
 ---
 
