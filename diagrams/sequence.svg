@@ -10,11 +10,11 @@
 <path d="M270,230 L458,230" class="ln" marker-end="url(#a)"/><text x="365" y="223" class="s" text-anchor="middle">prefill request</text>
 <path d="M80,275 L458,275" class="ln" marker-end="url(#a)"/><text x="270" y="268" class="s" text-anchor="middle">send</text>
 <path d="M460,315 L658,315" class="ln" marker-end="url(#a)"/><text x="560" y="308" class="s" text-anchor="middle">chat-messages, inputs: TC-12</text>
-<path d="M660,355 L888,355" class="ln" marker-end="url(#a)"/><text x="775" y="348" class="s" text-anchor="middle">POST /read_test_case</text>
+<path d="M660,355 L888,355" class="ln" marker-end="url(#a)"/><text x="775" y="348" class="s" text-anchor="middle">POST /testlink/read_test_case</text>
 <path d="M890,395 L662,395" class="ln d" marker-end="url(#a)"/><text x="775" y="388" class="s" text-anchor="middle">test case data</text>
 <path d="M660,435 L462,435" class="ln d" marker-end="url(#a)"/><text x="560" y="428" class="s" text-anchor="middle">streamed answer + proposal</text>
 <path d="M80,480 L458,480" class="ln" marker-end="url(#a)"/><text x="270" y="473" class="s" text-anchor="middle">Apply</text>
 <path d="M460,520 L658,520" class="ln" marker-end="url(#a)"/><text x="560" y="513" class="s" text-anchor="middle">workflows/run (proposal)</text>
-<path d="M660,560 L888,560" class="ln" marker-end="url(#a)"/><text x="775" y="553" class="s" text-anchor="middle">POST /update_test_case</text>
+<path d="M660,560 L888,560" class="ln" marker-end="url(#a)"/><text x="775" y="553" class="s" text-anchor="middle">POST /testlink/update_test_case</text>
 <path d="M460,605 L272,605" class="ln d" marker-end="url(#a)"/><text x="365" y="598" class="s" text-anchor="middle">reload work frame</text>
 </svg>

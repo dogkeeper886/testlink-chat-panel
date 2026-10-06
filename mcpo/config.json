@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "testlink": {
+      "command": "node",
+      "args": ["/opt/testlink-mcp/dist/index.js"]
+    }
+  }
+}

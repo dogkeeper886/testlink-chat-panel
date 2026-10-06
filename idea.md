@@ -71,20 +71,21 @@ The review agent cannot write by mistake, because it lacks the write tool.
 
 ## Decided: mcpo serves testlink-mcp to Dify
 
-testlink-mcp speaks MCP over stdio only (`StdioServerTransport`, `src/index.ts:1549`). mcpo runs it as a child process and serves each tool as a REST endpoint, such as `POST /read_test_case`, with an OpenAPI schema at `/openapi.json`. Dify imports that schema as a custom tool.
+testlink-mcp speaks MCP over stdio only (`StdioServerTransport`, `src/index.ts:1549`). mcpo runs it as a child process and serves each tool as a REST endpoint, such as `POST /testlink/read_test_case`, with an OpenAPI schema at `/testlink/openapi.json`. Dify imports that schema as a custom tool. The `/testlink` prefix is the server name in mcpo's config file.
 
-testlink-mcp is not on npm yet (testlink-mcp issue #129), so a small image adds mcpo on top of the published testlink-mcp image. testlink-mcp itself stays unchanged.
+testlink-mcp is not on npm yet (testlink-mcp issue #129), so the image starts from the official mcpo image and copies in the built server from the published testlink-mcp image. testlink-mcp itself stays unchanged. The setup is in [mcpo/](mcpo/).
 
 ```dockerfile
-FROM dogkeeper886/testlink-mcp:1.6.0
-USER root
-RUN apk add --no-cache python3 py3-pip && pip install --break-system-packages mcpo
-USER nodejs
-ENTRYPOINT ["mcpo", "--host", "0.0.0.0", "--port", "8000", "--api-key", "change-me", \
-            "--", "node", "/app/dist/index.js"]
+FROM ghcr.io/open-webui/mcpo:main
+COPY --from=dogkeeper886/testlink-mcp:1.6.0 /app /opt/testlink-mcp
+COPY config.json /etc/mcpo/config.json
+EXPOSE 8000
+ENTRYPOINT ["sh", "-c", "exec mcpo --host 0.0.0.0 --port 8000 --api-key \"$MCPO_API_KEY\" --config /etc/mcpo/config.json"]
 ```
 
-Run it with `TESTLINK_URL` and `TESTLINK_API_KEY`, as for testlink-mcp. In Dify, import `http://<host>:8000/openapi.json` under **Tools → Custom**, and set the mcpo API key as a Bearer key. Each Dify app then picks only the tools it needs.
+`config.json` starts `node /opt/testlink-mcp/dist/index.js`. mcpo passes its environment to the child, so `TESTLINK_URL` and `TESTLINK_API_KEY` go in `.env` with `MCPO_API_KEY`, and `docker compose up` runs it. `TESTLINK_URL` is the TestLink base URL; testlink-mcp adds `/lib/api/xmlrpc/v1/xmlrpc.php`. In Dify, import `http://<host>:8000/testlink/openapi.json` under **Tools → Custom**, and set `MCPO_API_KEY` as a Bearer key. Each Dify app then picks only the tools it needs.
+
+The mcpo image is used as published because it pins `mcp` and `mcpo` versions that work together; `pip install mcpo` on its own pulled `mcp` 2.x, which mcpo 0.0.20 fails to import.
 
 When testlink-mcp adds or changes tools, re-import the schema in Dify.
 
