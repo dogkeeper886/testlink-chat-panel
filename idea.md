@@ -4,15 +4,15 @@
 
 A chat panel on the right of TestLink talks to an agent built in Dify. The agent reads and writes TestLink data through testlink-mcp, which mcpo serves as a REST API. TestLink and testlink-mcp stay unchanged.
 
-The first version uses Dify's own chat in the Dify Chatbot Chrome extension, so it needs no front-end code. Our own extension, which sees the TestLink page and adds right-click requests and an Apply button, comes later.
+The first version shows Dify's own chat in Chrome's side panel through a thin extension in [extension/](extension/), so it needs no chat code. Page context, right-click requests and an Apply button come later.
 
 ![The full design: what is added and what stays unchanged](diagrams/verdict.png)
 
 ## Decided: start with Dify's own chat
 
-Dify's **Access Point → Embed Into Site** offers three ways in. The first two, an iframe and a chat bubble script, need a change to TestLink's pages. The third, the Dify Chatbot Chrome extension, opens the agent's chat beside any page and needs only the agent's ChatBot URL. Setup is in [dify/README.md](dify/README.md).
+The extension's side panel shows the agent's web app URL in an iframe. Dify's **Access Point → Embed Into Site** offers three other ways, and none fits: the iframe and chat bubble script need a change to TestLink's pages, and the Dify Chatbot Chrome extension is archived and injects its chat into the page, where it often fails to appear. Setup is in [dify/README.md](dify/README.md).
 
-| Feature | First version | Later, with our own extension |
+| Feature | First version | Later, with a fuller extension |
 |---|---|---|
 | Chat beside TestLink, streamed answers, follow-ups | ✔ Dify's chat | ✔ |
 | Agent reads and writes TestLink through mcpo | ✔ | ✔ |
@@ -24,7 +24,7 @@ The first version has one agent with read tools plus `create_test_case` and `upd
 
 | Risk | Mitigation |
 |---|---|
-| The ChatBot URL is a public share link; anyone with it can use the agent | Share it only on the trusted network, like the TestLink stack itself |
+| The web app URL is a public share link; anyone with it can use the agent | Share it only on the trusted network, like the TestLink stack itself |
 | The agent writes without an Apply button | No delete tools, and a prompt rule to propose first |
 
 ## Later: the agent works through two channels

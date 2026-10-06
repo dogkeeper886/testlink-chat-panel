@@ -1,10 +1,10 @@
 # Dify how-to: a TestLink agent beside TestLink
 
-This guide connects a Dify agent to TestLink through the mcpo proxy in [../mcpo/](../mcpo/), and opens the agent's chat beside TestLink in Chrome. Run the proxy first.
+This guide connects a Dify agent to TestLink through the mcpo proxy in [../mcpo/](../mcpo/), and opens the agent's chat in Chrome's side panel, beside TestLink. Run the proxy first.
 
 ```
-Chrome: Dify Chatbot ──▶ Dify agent ──REST──▶ mcpo :8000 ──stdio──▶ testlink-mcp ──XML-RPC──▶ TestLink
-                                      Bearer MCPO_API_KEY
+Chrome side panel ──▶ Dify agent ──REST──▶ mcpo :8000 ──stdio──▶ testlink-mcp ──XML-RPC──▶ TestLink
+                                   Bearer MCPO_API_KEY
 ```
 
 | Step | Where | Status |
@@ -13,7 +13,7 @@ Chrome: Dify Chatbot ──▶ Dify agent ──REST──▶ mcpo :8000 ──s
 | 2. Let Dify reach mcpo | Dify host `.env` | Done: the agent listed projects |
 | 3. Give the model enough context | Ollama | Not verified yet |
 | 4. Set up the agent | Dify web GUI | Not verified yet |
-| 5. Open the chat beside TestLink | Chrome | Not verified yet |
+| 5. Open the chat beside TestLink | Chrome | Done: the chat opens in the side panel |
 
 ## 1. Add mcpo as a custom tool
 
@@ -125,17 +125,10 @@ Lower Temperature to 0.3 if tool arguments come out wrong.
 
 ## 5. Open the chat beside TestLink
 
-In the agent, open **Access Point → Embed Into Site**. The first two ways, an iframe and a chat bubble script, need a change to TestLink's pages. Use the third, the Dify Chatbot Chrome extension.
+In the agent, open **Access Point** and copy the **Web App → Access URL**. Then set up the side panel extension in [../extension/](../extension/README.md), with that URL as `CHAT_URL`. Click its icon on the TestLink page; the agent's chat opens in Chrome's side panel.
+
+**Embed Into Site** offers three other ways, and none fits. The iframe and the chat bubble script need a change to TestLink's pages. The Dify Chatbot Chrome extension is archived and injects its chat into the page, where it often fails to appear.
 
 ![Embed options](images/5-embed-options.png)
 
-In Chrome, not Firefox:
-
-1. Click **Install Dify Chatbot Chrome Extension**, and add it from the Chrome Web Store.
-2. Copy the **ChatBot URL**.
-3. Paste the URL into the extension's settings, and save.
-4. Open TestLink, and click the extension's icon. The chat opens beside the page.
-
-![Chrome extension](images/6-chrome-extension.png)
-
-Ask with a test case ID, such as "review TLMCP-12". The mcpo logs show a `read_test_case` call. The ChatBot URL is a public share link: anyone who has it can use the agent, so share it only on a trusted network.
+Ask with a test case ID, such as "review TLMCP-12". The mcpo logs show a `read_test_case` call. The Access URL is a public share link: anyone who has it can use the agent, so share it only on a trusted network.
